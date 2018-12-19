@@ -8,6 +8,7 @@ Module will provide also these functions:
 
     2.  Shred block devices
 
+The API will support pathlib.Path objects as well as strs with paths.
 
 This module will work multiplatform (Linux, Windows, macOS, ...).
 
