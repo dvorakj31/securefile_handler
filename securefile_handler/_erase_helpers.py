@@ -11,7 +11,7 @@ from pathlib import Path
 import os
 
 
-def _shred_file(filepath: Path):
+def _shred(filepath: Path):
     """
     Function, that securely shreds file.
 
@@ -27,14 +27,3 @@ def _shred_file(filepath: Path):
                 input_file.write(val)
             # Ensure, that bytes are written to file
             input_file.flush()
-
-
-def file_remove(filepath: str):
-    """
-    Function, that removes securely file specified in parameter.
-
-    File operation exceptions are not handled.
-    :param filepath: path to file.
-    """
-    _shred_file(Path(filepath))
-    os.remove(filepath)

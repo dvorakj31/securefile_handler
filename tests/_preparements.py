@@ -21,3 +21,7 @@ def _prepare_empty_file():
 
 def _delete_file(filename):
     os.remove(filename)
+
+
+def _prepare_tmp_dir():
+    return tempfile.TemporaryDirectory()
