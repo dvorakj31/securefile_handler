@@ -11,7 +11,13 @@ from pathlib import Path
 import os
 
 
-def _shred(filepath: Path):
+def _shred_file(filepath: Path):
+    """
+    Function, that securely shreds file.
+
+    File operation exceptions are not handled.
+    :param filepath: Path class with filepath
+    """
     file_size = filepath.stat().st_size
     with filepath.open('wb+') as input_file:
         for i in range(3):
@@ -19,8 +25,16 @@ def _shred(filepath: Path):
             for _ in range(file_size):
                 val = bytes([i]) if i < 2 else os.urandom(1)
                 input_file.write(val)
-    return True
+            # Ensure, that bytes are written to file
+            input_file.flush()
 
 
 def file_remove(filepath: str):
-    return _shred(Path(filepath))
+    """
+    Function, that removes securely file specified in parameter.
+
+    File operation exceptions are not handled.
+    :param filepath: path to file.
+    """
+    _shred_file(Path(filepath))
+    os.remove(filepath)
