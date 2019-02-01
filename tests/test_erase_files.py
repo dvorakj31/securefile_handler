@@ -26,12 +26,12 @@ def test_shred_empty_file():
     assert p.stat().st_size == 0
 
 
-def test_file_remove():
+def test_remove_file():
     fname = _preparements._prepare_file()
     p = Path(fname)
     assert p.exists()
     assert p.stat().st_size > 0
-    securefile_handler.securefile_handler.file_remove(fname)
+    securefile_handler.securefile_handler.remove_file(fname)
     with pytest.raises(FileNotFoundError):
         assert p.stat()
     assert not p.exists()
@@ -39,8 +39,8 @@ def test_file_remove():
 
 def test_wrong_filepath_type_shred():
     with pytest.raises(WrongFilepathType):
-        assert securefile_handler.securefile_handler.file_remove(10)
-        assert securefile_handler.securefile_handler.file_remove(['some', 'bad', 'argument'])
+        assert securefile_handler.securefile_handler.remove_file(10)
+        assert securefile_handler.securefile_handler.remove_file(['some', 'bad', 'argument'])
         assert securefile_handler.securefile_handler.shred(['some', 'bad', 'argument'])
     with pytest.raises(CannotBeShred):
         tmp_dir = _preparements._prepare_tmp_dir()
@@ -48,5 +48,5 @@ def test_wrong_filepath_type_shred():
         tmp_dir.cleanup()
     with pytest.raises(NotAFileError):
         tmp_dir = _preparements._prepare_tmp_dir()
-        assert securefile_handler.securefile_handler.file_remove(tmp_dir.name)
+        assert securefile_handler.securefile_handler.remove_file(tmp_dir.name)
         tmp_dir.cleanup()

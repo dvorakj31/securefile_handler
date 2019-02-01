@@ -8,3 +8,7 @@ class NotAFileError(BaseException):
 
 class CannotBeShred(BaseException):
     pass
+
+
+class EraseFunctionError(BaseException):
+    pass

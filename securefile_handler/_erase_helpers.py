@@ -27,3 +27,17 @@ def _shred(filepath: Path):
                 input_file.write(val)
             # Ensure, that bytes are written to file
             input_file.flush()
+
+
+def _remove_dirtree(dirpath: Path, erase_function=_shred):
+    directories, filepaths = [], []
+    for root, dirs, fnames in os.walk(dirpath):
+        for dir_name in dirs:
+            directories.append(Path(os.path.join(root, dir_name)))
+        for fname in fnames:
+            filepaths.append(os.path.join(root, fname))
+    for file in filepaths:
+        erase_function(Path(file))
+    for directory in directories:
+        directory.rmdir()
+    dirpath.rmdir()
