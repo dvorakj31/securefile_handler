@@ -11,7 +11,7 @@ from pathlib import Path
 import os
 
 
-def _shred(filepath: Path):
+def shred(filepath: Path):
     """
     Function, that securely shreds file.
 
@@ -29,7 +29,7 @@ def _shred(filepath: Path):
             input_file.flush()
 
 
-def _remove_dirtree(dirpath: Path, erase_function=_shred):
+def remove_dirtree(dirpath: Path, erase_function=shred):
     directories, filepaths = [], []
     for root, dirs, fnames in os.walk(dirpath):
         for dir_name in dirs:
