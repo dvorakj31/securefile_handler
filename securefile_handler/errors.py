@@ -1,14 +1,22 @@
-class WrongFilepathType(BaseException):
+class WrongFilepathType(Exception):
     pass
 
 
-class NotAFileError(BaseException):
+class NotAFileError(Exception):
     pass
 
 
-class CannotBeShred(BaseException):
+class CannotBeShred(Exception):
     pass
 
 
-class EraseFunctionError(BaseException):
+class EraseFunctionError(Exception):
+    pass
+
+
+class SameDriveError(Exception):
+    pass
+
+
+class EmptyFolderError(Exception):
     pass

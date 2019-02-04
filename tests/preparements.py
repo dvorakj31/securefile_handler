@@ -1,3 +1,12 @@
+"""
+Helper file for preparing files to test.
+
+Files are stored in folders for temporary files (e. g. for unix it's /tmp folder).
+
+Files and folders are removed after testing.
+"""
+
+
 import tempfile
 import os
 
@@ -25,3 +34,7 @@ def delete_file(filename):
 
 def prepare_tmp_dir():
     return tempfile.TemporaryDirectory()
+
+
+def prepare_dirtree():
+    ...
