@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from Cython.Build import cythonize
 
 
 with open('README.rst') as f:
@@ -16,6 +17,10 @@ setup(
     license='MIT',
     url='https://github.com/dvorakj31/securefile_handler',
     keywords='python module secure file content remove shred move',
+    ext_modules=cythonize('securefile_handler/_erase_helpers.pyx'),
+    install_requires=[
+        'Cython',
+    ],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',

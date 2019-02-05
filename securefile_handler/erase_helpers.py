@@ -4,7 +4,7 @@ Algorithm for erasing is defined by British HMG Infosec Standard 5, Enhanced Sta
 Algorithm pseudocode:
     Open file
     In first round rewrite all bytes to zeros
-    In secod round rewrite all bytes to ones
+    In second round rewrite all bytes to ones
     In third round rewrite all bytes to random values
 """
 from pathlib import Path
