@@ -9,6 +9,8 @@ Algorithm pseudocode:
 """
 from pathlib import Path
 import os
+import sys
+from ._erase_helpers import shred_file
 
 
 def shred(filepath: Path):
@@ -18,15 +20,7 @@ def shred(filepath: Path):
     File operation exceptions are not handled.
     :param filepath: Path class with filepath
     """
-    file_size = filepath.stat().st_size
-    with filepath.open('wb+') as input_file:
-        for i in range(3):
-            input_file.seek(0, 0)
-            for _ in range(file_size):
-                val = bytes([i]) if i < 2 else os.urandom(1)
-                input_file.write(val)
-            # Ensure, that bytes are written to file
-            input_file.flush()
+    shred_file(bytes(Path(filepath.absolute())), filepath.stat().st_size)
 
 
 def remove_dirtree(dirpath: Path, erase_function=shred):

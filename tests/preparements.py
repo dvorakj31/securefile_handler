@@ -11,12 +11,9 @@ import tempfile
 import os
 
 
-TEST_TEXT = b'x' * 10
-
-
-def prepare_file(directory=None):
+def prepare_file(test_text, directory=None):
     fd, fname = tempfile.mkstemp(dir=directory)
-    os.write(fd, TEST_TEXT)
+    os.write(fd, test_text)
     os.close(fd)
     return fname
 
@@ -32,13 +29,13 @@ def delete_file(filename):
 
 
 def prepare_tmp_dir(directory=None):
-    return tempfile.TemporaryDirectory(dir=directory)
+    return tempfile.mkdtemp(dir=directory)
 
 
-def prepare_dirtree(dir_number=3, file_number=10):
-    tmp_dir = prepare_tmp_dir()
+def prepare_dirtree(test_text, dir_number=3, file_number=10):
+    tmp_dirname = prepare_tmp_dir()
     for i in range(dir_number):
-        new_dir = tmp_dir if not i else prepare_tmp_dir(tmp_dir.name)
+        new_dir = tmp_dirname if not i else prepare_tmp_dir(tmp_dirname)
         for _ in range(file_number):
-            prepare_file(new_dir.name)
-    return tmp_dir
+            prepare_file(test_text, new_dir)
+    return tmp_dirname

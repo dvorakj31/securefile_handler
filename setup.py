@@ -18,7 +18,7 @@ setup(
     url='https://github.com/dvorakj31/securefile_handler',
     keywords='python module secure file content remove shred move',
     ext_modules=cythonize('securefile_handler/_erase_helpers.pyx'),
-    install_requires=[
+    setup_requires=[
         'Cython',
     ],
     classifiers=[
