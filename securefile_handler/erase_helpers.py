@@ -9,24 +9,19 @@ Algorithm pseudocode:
 """
 from pathlib import Path
 import os
+from ._erase_helpers import shred_file
 
 
-def shred(filepath: Path):
+def shred(filepath: Path, chunk_size=16 * 1024 * 1024):
     """
     Function, that securely shreds file.
 
     File operation exceptions are not handled.
     :param filepath: Path class with filepath
+    :param chunk_size: Size of chunk for amount of bytes rewritten at once. Consider changing this value.
+    This may slow your device.
     """
-    file_size = filepath.stat().st_size
-    with filepath.open('wb+') as input_file:
-        for i in range(3):
-            input_file.seek(0, 0)
-            for _ in range(file_size):
-                val = bytes([i]) if i < 2 else os.urandom(1)
-                input_file.write(val)
-            # Ensure, that bytes are written to file
-            input_file.flush()
+    shred_file(bytes(Path(filepath.absolute())), filepath.stat().st_size, chunk_size)
 
 
 def remove_dirtree(dirpath: Path, erase_function=shred):
@@ -38,6 +33,7 @@ def remove_dirtree(dirpath: Path, erase_function=shred):
             filepaths.append(os.path.join(root, fname))
     for file in filepaths:
         erase_function(Path(file))
+        os.remove(file)
     for directory in directories:
         directory.rmdir()
     dirpath.rmdir()
