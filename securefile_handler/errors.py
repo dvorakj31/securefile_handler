@@ -20,3 +20,7 @@ class SameDriveError(Exception):
 
 class EmptyFolderError(Exception):
     pass
+
+
+class CannotReadFileError(Exception):
+    pass
