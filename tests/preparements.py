@@ -16,7 +16,6 @@ TEST_TEXT = b'x' * 10
 
 def prepare_file():
     filename = tempfile.mktemp()
-    tempfile.mkstemp()
     with open(filename, 'wb') as ifile:
         ifile.write(TEST_TEXT)
     return filename
