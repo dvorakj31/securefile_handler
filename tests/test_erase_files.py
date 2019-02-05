@@ -90,6 +90,16 @@ def test_remove_empty_folder():
 def test_remove_huge_files():
     file_list = []
     for i in range(10):
-        file_list.append(preparements.prepare_file(test_text=b'x' * 1024 * 1024))
+        file_list.append(preparements.prepare_file(test_text=b'x' * 100 * 1024 * 1024))
     for file in file_list:
         assert securefile_handler.remove_file(file) is None
+
+
+def test_shred_huge_files():
+    file_list = []
+    for i in range(10):
+        file_list.append(preparements.prepare_file(test_text=b'x' * 100 * 1024 * 1024))
+    for file in file_list:
+        assert securefile_handler.shred(file) is None
+        assert Path(file).stat().st_size == 100 * 1024 * 1024
+        os.remove(file)
