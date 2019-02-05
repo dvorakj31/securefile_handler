@@ -1,2 +1,7 @@
 .idea*
 *__pycache__*
+*venv*
+build*
+dist*
+.pytest_cache*
+securefile_handler.egg*

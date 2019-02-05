@@ -57,8 +57,10 @@ def test_permission_error_shred():
     with pytest.raises(PermissionError):
         import os
         fname = preparements.prepare_file()
+        default_mode = int(oct(os.stat(fname).st_mode & 0o777), 8)
         os.chmod(fname, 0)
         assert securefile_handler.securefile_handler.shred(fname)
+    os.chmod(fname, default_mode)
     preparements.delete_file(fname)
 
 
