@@ -38,6 +38,7 @@ def remove_dirtree(dirpath: Path, erase_function=shred):
             filepaths.append(os.path.join(root, fname))
     for file in filepaths:
         erase_function(Path(file))
+        os.remove(file)
     for directory in directories:
         directory.rmdir()
     dirpath.rmdir()

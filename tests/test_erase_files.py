@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 import preparements
 import securefile_handler.securefile_handler
-from securefile_handler.errors import WrongFilepathType, CannotBeShred, NotAFileError
+from securefile_handler.errors import WrongFilepathType, CannotBeShred, NotAFileError, EmptyFolderError
 
 
 def test_shred():
@@ -65,7 +65,17 @@ def test_permission_error_shred():
 
 
 def test_remove_dirtree():
-    # TODO
-    ...
+    directory = preparements.prepare_dirtree()
+    dir_path = Path(directory.name)
+    assert dir_path.exists()
+    with pytest.raises(WrongFilepathType):
+        securefile_handler.remove_dirtree(directory)
+    securefile_handler.remove_dirtree(dir_path)
+    assert not dir_path.exists()
 
 
+def test_remove_empty_folder():
+    directory = preparements.prepare_tmp_dir()
+    with pytest.raises(EmptyFolderError):
+        securefile_handler.remove_dirtree(directory.name)
+    assert Path(directory.name).exists()
