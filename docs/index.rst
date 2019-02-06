@@ -13,13 +13,3 @@ Welcome to Secure File Handler's documentation!
    introduction
    installation
    module
-
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

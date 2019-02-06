@@ -35,7 +35,7 @@ def _is_subdir(parent_path: str, child_path: str) -> bool:
     return parent in child.parents
 
 
-def remove_file(filepath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
+def remove_file(filepath: Union[str, Path], erase_function: callable = erase_helpers.shred):
     """
     Function that removes securely file specified in parameter.
 
@@ -59,7 +59,7 @@ def remove_file(filepath: Union[str, Path], erase_function=erase_helpers.shred) 
     os.remove(fpath.absolute())
 
 
-def remove_dirtree(dirpath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
+def remove_dirtree(dirpath: Union[str, Path], erase_function: callable = erase_helpers.shred):
     """
     Function to remove folder with its content securely.
 
@@ -82,7 +82,7 @@ def remove_dirtree(dirpath: Union[str, Path], erase_function=erase_helpers.shred
     erase_helpers.remove_dirtree(dir_path, erase_function)
 
 
-def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_function=erase_helpers.shred) -> None:
+def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_function: callable = erase_helpers.shred):
     """
     Function that moves folder with its content to another device.
 
@@ -111,7 +111,7 @@ def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_func
     erase_helpers.remove_dirtree(src_path, erase_function)
 
 
-def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function=erase_helpers.shred) -> None:
+def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function: callable = erase_helpers.shred):
     """
     Function that moves only regular file to another device.
 
@@ -142,7 +142,7 @@ def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function=erase
     os.remove(src_path.resolve())
 
 
-def shred(filepath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
+def shred(filepath: Union[str, Path], erase_function: callable = erase_helpers.shred):
     """
     Function to shred file content.
 

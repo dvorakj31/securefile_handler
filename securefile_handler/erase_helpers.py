@@ -11,13 +11,12 @@ def shred(filepath: Path, chunk_size=4 * 1024):
 
     :param filepath: Path class with filepath
     :param chunk_size: Size of chunk for amount of bytes rewritten at once. Consider changing this value.
-
     This may slow your device.
     """
     shred_file(bytes(Path(filepath.absolute())), filepath.stat().st_size, chunk_size)
 
 
-def remove_dirtree(dirpath: Path, erase_function=shred):
+def remove_dirtree(dirpath: Path, erase_function: callable = shred):
     """
     Function to help remove directory tree
 
