@@ -1,16 +1,3 @@
-Secure File Handler
-===================
-
-This module provides secure removing files and folders with content.
-
-Module was created as school project for MI-PYT class at FIT CTU.
-
-
-Task description
-----------------
-
-See file TASK.rst
-
 Installation
 ============
 
@@ -27,7 +14,7 @@ Unix-like system users
 
 4.  You can install this module manually via github:
 
-    - Click on clone or download on this page and download ZIP
+    - Go to https://github.com/dvorakj31/securefile_handler
 
     - Dowload this repository on your drive
 
@@ -53,7 +40,7 @@ Windows system users
 
 4.  You can install this module manually via github:
 
-    - Click on clone or download on this page and download ZIP
+    - Go to https://github.com/dvorakj31/securefile_handler
 
     - Dowload this repository on your drive
 

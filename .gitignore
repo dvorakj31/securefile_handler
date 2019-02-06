@@ -5,3 +5,5 @@ build*
 dist*
 .pytest_cache*
 securefile_handler.egg*
+docs/_*/
+
