@@ -12,7 +12,7 @@ import os
 from ._erase_helpers import shred_file
 
 
-def shred(filepath: Path, chunk_size=50 * 1024 * 1024):
+def shred(filepath: Path, chunk_size=4 * 1024):
     """
     Function, that securely shreds file.
 
@@ -27,6 +27,7 @@ def shred(filepath: Path, chunk_size=50 * 1024 * 1024):
 def remove_dirtree(dirpath: Path, erase_function=shred):
     """
     Function to help remove directory tree
+
     :param dirpath: Path to root directory specified with Path class
     :param erase_function: Function for erasing data in files.
     """

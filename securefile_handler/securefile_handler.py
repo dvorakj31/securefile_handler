@@ -1,13 +1,15 @@
 from . import errors
+from typing import Union
 from . import erase_helpers
 from pathlib import Path
 import os
 import shutil
 
 
-def _check_params(params: list):
+def _check_params(params: list) -> bool:
     """
     Function for checking parameters of functions
+
     :param params: List of parameters of function.
     :return: True if all parameters are OK. Else False
     """
@@ -17,9 +19,10 @@ def _check_params(params: list):
     return True
 
 
-def _is_subdir(parent_path: str, child_path: str):
+def _is_subdir(parent_path: str, child_path: str) -> bool:
     """
     Function for checking if child_path is subdir of parent_path
+
     :param parent_path: Path string to parent folder
     :param child_path: Path string to child file
     :return: If folders are same exception SameDirectoryError will be raised else returns True or False depending on
@@ -32,11 +35,14 @@ def _is_subdir(parent_path: str, child_path: str):
     return parent in child.parents
 
 
-def remove_file(filepath: (str, Path), erase_function=erase_helpers.shred):
+def remove_file(filepath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
     """
     Function that removes securely file specified in parameter.
 
+    If file path is symlink function will delete file that symlink points to and symlink will be deleted too.
+
     File operation exceptions are not handled.
+
     :param filepath: Path to file specified with Path class or string.
     :param erase_function: Function for erasing data in files.
     """
@@ -48,14 +54,20 @@ def remove_file(filepath: (str, Path), erase_function=erase_helpers.shred):
     if not callable(erase_function):
         raise errors.EraseFunctionError('Erase function is not callable')
     erase_function(fpath)
+    if fpath.is_symlink():
+        os.remove(fpath.resolve())
     os.remove(fpath.absolute())
 
 
-def remove_dirtree(dirpath: (str, Path), erase_function=erase_helpers.shred):
+def remove_dirtree(dirpath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
     """
     Function to remove folder with its content securely.
 
     Folder must contain some files.
+
+    If folder contains symlinks pointing to regular files, only symlinks will be destroyed.
+
+    File and directory operation exceptions are not handled.
 
     :param dirpath: Path to non-empty directory
     :param erase_function: Function for erasing data in files.
@@ -70,11 +82,16 @@ def remove_dirtree(dirpath: (str, Path), erase_function=erase_helpers.shred):
     erase_helpers.remove_dirtree(dir_path, erase_function)
 
 
-def move_folder(src_dir: (str, Path), dst_dir: (str, Path), erase_function=erase_helpers.shred):
+def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_function=erase_helpers.shred) -> None:
     """
     Function that moves folder with its content to another device.
 
     This function will copy folder with content and then delete the old folder with content.
+
+    If folder contains symlinks, the contents of the files pointed to by symlinks are copied.
+
+    Directory operation exceptions are not handled.
+
     :param src_dir: Source path of directory.
     :param dst_dir: Destination path of directory.
     :param erase_function: Function for erasing data in files.
@@ -94,11 +111,17 @@ def move_folder(src_dir: (str, Path), dst_dir: (str, Path), erase_function=erase
     erase_helpers.remove_dirtree(src_path, erase_function)
 
 
-def move_file(src: (str, Path), dst: (str, Path), erase_function=erase_helpers.shred):
+def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function=erase_helpers.shred) -> None:
     """
-    Function that moves file to another device.
+    Function that moves only regular file to another device.
 
     Function copy file to another device and delete file on source path.
+
+    If source file is symbolic link, the content of the file pointed to by symlink will be copied and old one will be
+    destroyed together with symbolic link.
+
+    File operation exceptions are not handled.
+
     :param src: Source path of file.
     :param dst: Destination path of file.
     :param erase_function: Function for erasing data in files. This optional argument is a callable.
@@ -110,22 +133,30 @@ def move_file(src: (str, Path), dst: (str, Path), erase_function=erase_helpers.s
     src_path, dst_path = Path(src), Path(dst)
     if src_path.stat().st_dev == dst_path.stat().st_dev:
         raise errors.SameDriveError("Cannot move file to same drive")
-    if not src_path.is_file():
+    if not src_path.is_file() or src_path.is_symlink():
         raise errors.NotAFileError(f'{src} is not a regular file')
     shutil.copy2(src_path.absolute(), dst_path.absolute())
-    erase_function(src_path)
+    erase_function(src_path.resolve())
+    if src_path.is_symlink():
+        os.remove(src_path.absolute())
+    os.remove(src_path.resolve())
 
 
-def shred(filepath: (str, Path), erase_function=erase_helpers.shred):
+def shred(filepath: Union[str, Path], erase_function=erase_helpers.shred) -> None:
     """
     Function to shred file content.
+
+    If filepath is symbolic link, file will be shred that symlink points to.
+
+    File operation exceptions are not handled.
+
     :param filepath: Path to file specified with Path class or string.
     :param erase_function: Function for erasing data in file.
     """
     if not _check_params([filepath]):
         raise errors.WrongFilepathType(f'Wrong filepath type {type(filepath)}')
     fpath = Path(filepath)
-    if not fpath.is_file() and not fpath.is_block_device() and not fpath.is_symlink():
+    if not fpath.is_file() and not fpath.is_block_device():
         raise errors.CannotBeShred(f'This file cannot be shred {filepath}')
     if not callable(erase_function):
         raise errors.EraseFunctionError(f'Wrong erase function type {type(erase_function)}')
