@@ -24,3 +24,11 @@ class EmptyFolderError(Exception):
 
 class CannotReadFileError(Exception):
     pass
+
+
+class SameDirectoryError(Exception):
+    pass
+
+
+class SubDirectoryError(Exception):
+    pass

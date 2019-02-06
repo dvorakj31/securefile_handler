@@ -17,6 +17,21 @@ def _check_params(params: list):
     return True
 
 
+def _is_subdir(parent_path: str, child_path: str):
+    """
+    Function for checking if child_path is subdir of parent_path
+    :param parent_path: Path string to parent folder
+    :param child_path: Path string to child file
+    :return: If folders are same exception SameDirectoryError will be raised else returns True or False depending on
+    child path being subdir.
+    """
+    parent = Path(os.path.abspath(parent_path)).resolve()
+    child = Path(os.path.abspath(child_path)).resolve()
+    if parent == child:
+        raise errors.SameDirectoryError(f'{parent_path} and {child} are the same folders')
+    return parent in child.parents
+
+
 def remove_file(filepath: (str, Path), erase_function=erase_helpers.shred):
     """
     Function that removes securely file specified in parameter.
@@ -59,12 +74,24 @@ def move_folder(src_dir: (str, Path), dst_dir: (str, Path), erase_function=erase
     """
     Function that moves folder with its content to another device.
 
-    This function will copy folder with content and then delete it.
+    This function will copy folder with content and then delete the old folder with content.
     :param src_dir: Source path of directory.
     :param dst_dir: Destination path of directory.
     :param erase_function: Function for erasing data in files.
     """
-    # TODO
+    if not _check_params([src_dir, dst_dir]):
+        raise errors.WrongFilepathType(f'Wrong parameter type')
+    if not callable(erase_function):
+        raise errors.EraseFunctionError('Erase function is not callable')
+    if _is_subdir(str(src_dir), str(dst_dir)):
+        raise errors.SubDirectoryError(f'Cannot move {dst_dir} subdirectory of {src_dir}')
+    src_path, dst_path = Path(src_dir), Path(dst_dir)
+    if src_path.stat().st_dev == dst_path.stat().st_dev:
+        raise errors.SameDriveError("Cannot move folder to same drive")
+    if len(os.listdir(src_path.absolute())) == 0:
+        raise errors.EmptyFolderError(f'Folder {src_path.absolute()} is empty')
+    shutil.copytree(src_path.resolve(), dst_path.resolve())
+    erase_helpers.remove_dirtree(src_path, erase_function)
 
 
 def move_file(src: (str, Path), dst: (str, Path), erase_function=erase_helpers.shred):
@@ -84,7 +111,7 @@ def move_file(src: (str, Path), dst: (str, Path), erase_function=erase_helpers.s
     if src_path.stat().st_dev == dst_path.stat().st_dev:
         raise errors.SameDriveError("Cannot move file to same drive")
     if not src_path.is_file():
-        raise errors.NotAFileError(f'{src} is not a file')
+        raise errors.NotAFileError(f'{src} is not a regular file')
     shutil.copy2(src_path.absolute(), dst_path.absolute())
     erase_function(src_path)
 

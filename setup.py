@@ -17,18 +17,15 @@ setup(
     license='MIT',
     url='https://github.com/dvorakj31/securefile_handler',
     keywords='python module secure file content remove shred move',
-    ext_modules=cythonize('securefile_handler/_erase_helpers.pyx'),
-<<<<<<< HEAD
+    ext_modules=cythonize('securefile_handler/_erase_helpers.pyx', language_level=3),
     install_requires=[
-=======
-    setup_requires=[
->>>>>>> 3f9c8f2863a0e97059ecf7efb401ea4e650436c0
         'Cython',
     ],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Cython',
         'Programming Language :: Python',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: 3',
