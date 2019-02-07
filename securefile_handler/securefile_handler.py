@@ -48,7 +48,7 @@ def remove_file(filepath: Union[str, Path], erase_function: callable = erase_hel
     """
     if not _check_params([filepath]):
         raise errors.WrongFilepathType(f'Wrong filepath type {type(filepath)}')
-    fpath = Path(filepath)
+    fpath = filepath if isinstance(filepath, Path) else Path(filepath)
     if not fpath.is_file():
         raise errors.NotAFileError(f'{filepath} is not a file')
     if not callable(erase_function):
@@ -76,7 +76,7 @@ def remove_dirtree(dirpath: Union[str, Path], erase_function: callable = erase_h
         raise errors.WrongFilepathType(f'Wrong dirpath type {type(dirpath)}')
     if not callable(erase_function):
         raise errors.EraseFunctionError('Erase function is not callable')
-    dir_path = Path(dirpath)
+    dir_path = dirpath if isinstance(dirpath, Path) else Path(dirpath)
     if len(os.listdir(dir_path.absolute())) == 0:
         raise errors.EmptyFolderError(f'Folder {dir_path.absolute()} is empty')
     erase_helpers.remove_dirtree(dir_path, erase_function)
@@ -100,13 +100,14 @@ def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_func
         raise errors.WrongFilepathType(f'Wrong parameter type')
     if not callable(erase_function):
         raise errors.EraseFunctionError('Erase function is not callable')
+    src_path, dst_path = src_dir if isinstance(src_dir, Path) else Path(src_dir), dst_dir if isinstance(dst_dir, Path) \
+        else Path(dst_dir)
+    if not len(os.listdir(src_path.absolute())):
+        raise errors.EmptyFolderError(f'Folder {src_path.absolute()} is empty')
     if _is_subdir(str(src_dir), str(dst_dir)):
         raise errors.SubDirectoryError(f'Cannot move {dst_dir} subdirectory of {src_dir}')
-    src_path, dst_path = Path(src_dir), Path(dst_dir)
     if src_path.stat().st_dev == dst_path.stat().st_dev:
         raise errors.SameDriveError("Cannot move folder to same drive")
-    if len(os.listdir(src_path.absolute())) == 0:
-        raise errors.EmptyFolderError(f'Folder {src_path.absolute()} is empty')
     shutil.copytree(src_path.resolve(), dst_path.resolve())
     erase_helpers.remove_dirtree(src_path, erase_function)
 
@@ -127,14 +128,16 @@ def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function: call
     :param erase_function: Function for erasing data in files. This optional argument is a callable.
     """
     if not _check_params([src, dst]):
-        raise errors.WrongFilepathType(f'Wrong parameter type')
+        raise errors.WrongFilepathType(f'Wrong parameter type {src} {dst}')
     if not callable(erase_function):
         raise errors.EraseFunctionError('Erase function is not callable')
-    src_path, dst_path = Path(src), Path(dst)
+    src_path, dst_path = src if isinstance(src, Path) else Path(src), dst if isinstance(dst, Path) else Path(dst)
     if src_path.stat().st_dev == dst_path.stat().st_dev:
         raise errors.SameDriveError("Cannot move file to same drive")
-    if not src_path.is_file() or src_path.is_symlink():
-        raise errors.NotAFileError(f'{src} is not a regular file')
+    if src_path.resolve() == dst_path.resolve():
+        raise errors.SameFileError(f'{src_path} is same file as {dst_path}')
+    if not src_path.is_file():
+        raise errors.NotAFileError(f'{src} is not a file')
     shutil.copy2(src_path.absolute(), dst_path.absolute())
     erase_function(src_path.resolve())
     if src_path.is_symlink():

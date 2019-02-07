@@ -26,6 +26,10 @@ class CannotReadFileError(Exception):
     pass
 
 
+class SameFileError(Exception):
+    pass
+
+
 class SameDirectoryError(Exception):
     pass
 
