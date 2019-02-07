@@ -49,10 +49,12 @@ cdef _rewrite_file_chunks(FILE* input_file, unsigned long long int file_size, un
     :param buffer: Buffer that will be written to file
     """
     cdef unsigned long long int i = 0
-    while i < file_size - chunk_size:
+    while i < file_size - chunk_size and file_size > chunk_size:
         _write_to_file(input_file, chunk_size, buffer)
         i += chunk_size
     _write_to_file(input_file, file_size - i, buffer)
+    rewind(input_file)
+    PyMem_Free(buffer)
 
 
 @cython.boundscheck(False)
@@ -78,36 +80,18 @@ def shred_file(const char* path, unsigned long long int file_size, unsigned long
     buffer_of_zeros = <char*>PyMem_Malloc(chunk_size * sizeof(char))
     buffer_of_ones = <char*>PyMem_Malloc(chunk_size * sizeof(char))
     if buffer_of_zeros == NULL or buffer_of_ones == NULL:
+        PyMem_Free(buffer_of_zeros)
+        PyMem_Free(buffer_of_ones)
         raise MemoryError()
     for i in range(chunk_size):
         buffer_of_zeros[i] = 0
-        buffer_of_ones[i] = 1
-    if file_size <= chunk_size:
-        _write_to_file(input_file, file_size, buffer_of_zeros)
-        PyMem_Free(buffer_of_zeros)
-        rewind(input_file)
-        _write_to_file(input_file, file_size, buffer_of_ones)
-        PyMem_Free(buffer_of_ones)
-        rewind(input_file)
-        buffer_of_rand = <char*>PyMem_Malloc(file_size * sizeof(char))
-        if buffer_of_rand == NULL:
-           raise MemoryError()
-        for i in range(file_size):
-           buffer_of_rand[i] = rand()
-        _write_to_file(input_file, file_size, buffer_of_rand)
-        PyMem_Free(buffer_of_rand)
-    else:
-       _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_zeros)
-       rewind(input_file)
-       PyMem_Free(buffer_of_zeros)
-       _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_ones)
-       rewind(input_file)
-       PyMem_Free(buffer_of_ones)
-       buffer_of_rand = <char*>PyMem_Malloc(chunk_size * sizeof(char))
-       if buffer_of_rand == NULL:
-           raise MemoryError()
-       for i in range(chunk_size):
-           buffer_of_rand[i] = rand()
-       _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_rand)
-       PyMem_Free(buffer_of_rand)
+        buffer_of_ones[i] = -1
+    _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_zeros)
+    _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_ones)
+    buffer_of_rand = <char*>PyMem_Malloc(chunk_size * sizeof(char))
+    if buffer_of_rand == NULL:
+        raise MemoryError()
+    for i in range(chunk_size):
+        buffer_of_rand[i] = rand()
+    _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_rand)
     fclose(input_file)
