@@ -35,7 +35,6 @@ cdef _write_to_file(FILE* file, unsigned long long int number_of_bytes, char* bu
 
     """
     fwrite(buffer, sizeof(char), number_of_bytes, file)
-    fflush(file)
 
 
 cdef _rewrite_file_chunks(FILE* input_file, unsigned long long int file_size, unsigned long long chunk_size,
@@ -53,6 +52,7 @@ cdef _rewrite_file_chunks(FILE* input_file, unsigned long long int file_size, un
         _write_to_file(input_file, chunk_size, buffer)
         i += chunk_size
     _write_to_file(input_file, file_size - i, buffer)
+    fflush(input_file)
     rewind(input_file)
     PyMem_Free(buffer)
 
@@ -82,6 +82,7 @@ def shred_file(const char* path, unsigned long long int file_size, unsigned long
     if buffer_of_zeros == NULL or buffer_of_ones == NULL:
         PyMem_Free(buffer_of_zeros)
         PyMem_Free(buffer_of_ones)
+        fclose(input_file)
         raise MemoryError()
     for i in range(chunk_size):
         buffer_of_zeros[i] = 0
@@ -90,6 +91,7 @@ def shred_file(const char* path, unsigned long long int file_size, unsigned long
     _rewrite_file_chunks(input_file, file_size, chunk_size, buffer_of_ones)
     buffer_of_rand = <char*>PyMem_Malloc(chunk_size * sizeof(char))
     if buffer_of_rand == NULL:
+        fclose(input_file)
         raise MemoryError()
     for i in range(chunk_size):
         buffer_of_rand[i] = rand()

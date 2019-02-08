@@ -9,6 +9,7 @@ Files and folders are removed after testing.
 
 import tempfile
 import os
+import shutil
 
 
 def prepare_file(test_text, directory=None):
@@ -26,6 +27,10 @@ def prepare_empty_file():
 
 def delete_file(filename):
     os.remove(filename)
+
+
+def delete_dirtree(root_dir):
+    shutil.rmtree(root_dir)
 
 
 def prepare_tmp_dir(directory=None):

@@ -34,4 +34,6 @@ def remove_dirtree(dirpath: Path, erase_function: callable = shred):
         os.remove(file)
     for directory in directories:
         directory.rmdir()
-    dirpath.rmdir()
+    os.rmdir(dirpath.resolve())
+    if dirpath.is_symlink():
+        os.remove(dirpath)

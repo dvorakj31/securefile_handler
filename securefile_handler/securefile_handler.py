@@ -86,7 +86,11 @@ def move_folder(src_dir: Union[str, Path], dst_dir: Union[str, Path], erase_func
     """
     Function that moves folder with its content to another device.
 
+    The destination directory, named by dst, must not already exist.
+
     This function will copy folder with content and then delete the old folder with content.
+
+    If destination does not exists, new folder folder will be created
 
     If folder contains symlinks, the contents of the files pointed to by symlinks are copied.
 
@@ -140,9 +144,9 @@ def move_file(src: Union[str, Path], dst: Union[str, Path], erase_function: call
         raise errors.NotAFileError(f'{src} is not a file')
     shutil.copy2(src_path.absolute(), dst_path.absolute())
     erase_function(src_path.resolve())
+    os.remove(src_path.resolve())
     if src_path.is_symlink():
         os.remove(src_path.absolute())
-    os.remove(src_path.resolve())
 
 
 def shred(filepath: Union[str, Path], erase_function: callable = erase_helpers.shred):
