@@ -11,6 +11,13 @@ Task description
 
 See file TASK.rst
 
+
+Documentation
+=============
+
+https://securefile-handler.readthedocs.io/en/latest/index.html
+
+
 Installation
 ============
 
