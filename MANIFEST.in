@@ -1,1 +1,2 @@
 include LICENSE
+include securefile_handler/_erase_helpers.c

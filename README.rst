@@ -9,7 +9,7 @@ Module was created as school project for MI-PYT class at FIT CTU.
 Task description
 ----------------
 
-See file TASK.rst
+See file https://github.com/dvorakj31/securefile_handler/blob/master/TASK.rst
 
 
 Documentation
@@ -30,9 +30,7 @@ Unix-like system users
 
 2.  Ensure you have installed python version >= 3.6
 
-3.  Install cython with command ``python -m pip install cython``
-
-4.  You can install this module manually via github:
+3.  You can install this module manually via github:
 
     - Click on clone or download on this page and download ZIP
 
@@ -44,10 +42,11 @@ Unix-like system users
 
     - Run ``python setup.py install``
 
-5.  Another way is installing this module via pip.
+4.  Another way is installing this module via pip.
+
     - Run command-line
 
-    - Run command ``python -m pip install ...``
+    - Run command ``python -m pip install securefile-handler``
 
 Windows system users
 --------------------
@@ -56,9 +55,7 @@ Windows system users
 
 2.  Ensure you have installed python version >= 3.6
 
-3.  Install cython with command ``py -3 -m pip install cython`` (here I use ``py -3`` as default standard on Windows - you can use your alias for python3)
-
-4.  You can install this module manually via github:
+3.  You can install this module manually via github:
 
     - Click on clone or download on this page and download ZIP
 
@@ -70,7 +67,8 @@ Windows system users
 
     - Run ``py -3 setup.py install``
 
-5.  Another way is installing this module via pip.
+4.  Another way is installing this module via pip.
+
     - Run command-line
 
-    - Run command ``py -3 -m pip install ...``
+    - Run command ``py -3 -m pip install securefile-handler``

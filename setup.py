@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from Cython.Build import cythonize
+from distutils.extension import Extension
 
 
 with open('README.rst') as f:
@@ -9,7 +9,7 @@ with open('README.rst') as f:
 setup(
     name='securefile_handler',
     packages=find_packages(),
-    version='0.1',
+    version='0.1.2',
     description='Module for secure (re)moving files and folders with content',
     long_description=long_description,
     author='Jakub Dvořák',
@@ -17,10 +17,11 @@ setup(
     license='MIT',
     url='https://github.com/dvorakj31/securefile_handler',
     keywords='python module secure file content remove shred move',
-    ext_modules=cythonize('securefile_handler/_erase_helpers.pyx', language_level=3),
-    setup_requires=[
-        'Cython',
-    ],
+    ext_modules=[Extension("securefile_handler._erase_helpers", ["securefile_handler/_erase_helpers.c"])],
+    setup_requires=["pytest-runner"],
+    tests_require=['pytest'],
+    package_dir={"securefile_handler": "securefile_handler"},
+    py_modules=['securefile_handler'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
@@ -34,7 +35,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities',
     ],
-    tests_require=['pytest'],
-    py_modules=['securefile_handler'],
     zip_safe=False,
 )

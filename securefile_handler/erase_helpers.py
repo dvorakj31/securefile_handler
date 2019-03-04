@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-from ._erase_helpers import shred_file
+from securefile_handler._erase_helpers import shred_file
 
 
 def shred(filepath: Path, chunk_size=4 * 1024):
