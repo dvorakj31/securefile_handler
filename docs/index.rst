@@ -13,3 +13,4 @@ Welcome to Secure File Handler's documentation!
    introduction
    installation
    module
+   examples
