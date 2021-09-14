@@ -1,10 +1,12 @@
-import pytest
-from unittest.mock import MagicMock
-from pathlib import Path
 import os
+from pathlib import Path
+import tempfile
+from unittest.mock import MagicMock
+
+import pytest
+
 import securefile_handler.securefile_handler
 from securefile_handler import errors
-import preparements
 
 
 class FakeStat:
@@ -12,7 +14,7 @@ class FakeStat:
         self.st_dev = st_dev
 
 
-def test_move_file_errors():
+def test_move_file_errors(empty_file, tmp_dir):
     with pytest.raises(errors.WrongFilepathType):
         securefile_handler.securefile_handler.move_file((',', ), 'str')
     with pytest.raises(errors.EraseFunctionError):
@@ -20,7 +22,7 @@ def test_move_file_errors():
     with pytest.raises(errors.SameDriveError):
         securefile_handler.securefile_handler.move_file('/', '/',)
     with pytest.raises(errors.SameFileError):
-        file_path = Path(preparements.prepare_empty_file())
+        file_path = Path(empty_file)
         attrs = {
             'stat.return_value': FakeStat(file_path.stat().st_dev + 1),
             'resolve': file_path.resolve
@@ -28,46 +30,39 @@ def test_move_file_errors():
         fake_file = MagicMock(spec=Path, wraps=Path, **attrs)
         fake_file.__fspath__ = lambda: file_path.absolute()
         securefile_handler.securefile_handler.move_file(fake_file, file_path)
-    preparements.delete_file(file_path)
     with pytest.raises(errors.NotAFileError):
-        tmp_dir = Path(preparements.prepare_tmp_dir())
+        tmp_directory_path = Path(tmp_dir)
         attrs = {
-            'stat.return_value': FakeStat(tmp_dir.stat().st_dev + 1),
+            'stat.return_value': FakeStat(tmp_directory_path.stat().st_dev + 1),
             'resolve': lambda: os.urandom(10)
         }
         fake_file = MagicMock(spec=Path, wraps=Path, **attrs)
         fake_file.__fspath__ = lambda: file_path.absolute()
-        securefile_handler.securefile_handler.move_file(tmp_dir, fake_file)
-    tmp_dir.rmdir()
+        securefile_handler.securefile_handler.move_file(tmp_directory_path, fake_file)
 
 
-def test_move_folder_errors():
+def test_move_folder_errors(tmp_dir, non_empty_tmp_dir):
     with pytest.raises(errors.WrongFilepathType):
         securefile_handler.securefile_handler.move_folder((',', ), 'str')
     with pytest.raises(errors.EraseFunctionError):
         securefile_handler.securefile_handler.move_folder('correct/src', 'correct/dst', 'non-callable')
     with pytest.raises(errors.EmptyFolderError):
-        tmp_dir = Path(preparements.prepare_tmp_dir())
-        securefile_handler.move_folder(tmp_dir, tmp_dir)
-    tmp_dir.rmdir()
+        tmp_dir_path = Path(tmp_dir)
+        securefile_handler.move_folder(tmp_dir_path, tmp_dir_path)
     with pytest.raises(errors.SameDirectoryError):
         securefile_handler.securefile_handler.move_folder('/', '/')
     with pytest.raises(errors.SubDirectoryError):
-        tmp_dir = Path(preparements.prepare_tmp_dir())
-        dst_dir = Path(preparements.prepare_tmp_dir(tmp_dir.resolve()))
-        securefile_handler.securefile_handler.move_folder(tmp_dir, dst_dir)
-    tmp = dst_dir
+        dst_dir = Path(tmp_dir)
+        securefile_handler.securefile_handler.move_folder(tempfile.gettempdir(), dst_dir)
     with pytest.raises(errors.SameDriveError):
-        dst_dir = Path(preparements.prepare_tmp_dir())
-        securefile_handler.securefile_handler.move_folder(tmp_dir, dst_dir)
-    tmp.rmdir()
-    dst_dir.rmdir()
-    tmp_dir.rmdir()
+        dst_dir = Path(tmp_dir)
+        securefile_handler.securefile_handler.move_folder(non_empty_tmp_dir, dst_dir)
 
 
-def test_move_file():
-    src_file = Path(preparements.prepare_file(b'test text1'))
-    dst_file = Path(preparements.prepare_empty_file())
+@pytest.mark.parametrize('temp_file', [b'test text1'], indirect=['temp_file'])
+def test_move_file(temp_file, empty_file):
+    src_file = Path(temp_file)
+    dst_file = Path(empty_file)
     attrs = {
         'stat.return_value': FakeStat(dst_file.stat().st_dev + 1),
         'resolve': lambda: dst_file.resolve(),
@@ -78,15 +73,15 @@ def test_move_file():
     assert not src_file.exists()
     assert dst_file.is_file()
     assert dst_file.read_bytes() == b'test text1'
-    preparements.delete_file(dst_file.absolute())
 
 
-def test_move_file_symlink():
+@pytest.mark.parametrize('temp_file', [b'test text1'], indirect=['temp_file'])
+def test_move_file_symlink(temp_file, empty_file):
     if os.name == 'nt':
         # Pass symlink test on Windows
         return
-    src_file = Path(preparements.prepare_file(b'test text1'))
-    dst_file = Path(preparements.prepare_empty_file())
+    src_file = Path(temp_file)
+    dst_file = Path(empty_file)
     symlink_file = Path(str(dst_file.resolve()) + '_symlink')
     symlink_file.symlink_to(src_file)
     attrs = {
@@ -99,15 +94,14 @@ def test_move_file_symlink():
     assert not src_file.exists()
     assert dst_file.is_file()
     assert dst_file.read_bytes() == b'test text1'
-    preparements.delete_file(dst_file.absolute())
 
 
-def test_move_file_new():
-    src_file = Path(preparements.prepare_file(b'test text1'))
-    dst_file = Path(preparements.prepare_empty_file())
+@pytest.mark.parametrize('temp_file', [b'test text1'], indirect=['temp_file'])
+def test_move_file_new(temp_file, empty_file):
+    src_file = Path(temp_file)
+    dst_file = Path(empty_file)
     dst_path = dst_file.resolve()
     dst_dev = dst_file.stat().st_dev
-    preparements.delete_file(dst_path)
     attrs = {
         'stat.return_value': FakeStat(dst_dev + 1),
         'resolve': lambda: dst_path,
@@ -118,12 +112,12 @@ def test_move_file_new():
     assert not src_file.exists()
     assert dst_file.is_file()
     assert dst_file.read_bytes() == b'test text1'
-    preparements.delete_file(dst_file.absolute())
 
 
-def test_move_folder():
-    src_dir = Path(preparements.prepare_dirtree(b'test text1'))
-    dst_dir = Path(preparements.prepare_tmp_dir())
+@pytest.mark.parametrize('tmp_dirtree', [b'test text1'], indirect=['tmp_dirtree'])
+def test_move_folder(tmp_dirtree, tmp_dir):
+    src_dir = Path(tmp_dirtree)
+    dst_dir = Path(tmp_dir)
     dst_path = dst_dir.resolve()
     dst_dev = dst_dir.stat().st_dev
     dst_dir.rmdir()
@@ -143,16 +137,15 @@ def test_move_folder():
     for root, _, file_names in os.walk(dst_dir.resolve()):
         for file_name in file_names:
             assert Path(os.path.join(root, file_name)).read_bytes() == b'test text1'
-            preparements.delete_file(Path(os.path.join(root, file_name)))
-    preparements.delete_dirtree(dst_dir)
 
 
-def test_move_folder_symlink():
+@pytest.mark.parametrize('tmp_dirtree', [b'test text1'], indirect=['tmp_dirtree'])
+def test_move_folder_symlink(tmp_dirtree, tmp_dir):
     if os.name == 'nt':
         # Pass symlink test on Windows
         return
-    src_dir = Path(preparements.prepare_dirtree(b'test text1'))
-    dst_dir = Path(preparements.prepare_tmp_dir())
+    src_dir = Path(tmp_dirtree)
+    dst_dir = Path(tmp_dir)
     dst_path = dst_dir.resolve()
     dst_dev = dst_dir.stat().st_dev
     dst_dir.rmdir()
@@ -170,5 +163,3 @@ def test_move_folder_symlink():
     for root, _, file_names in os.walk(dst_dir.resolve()):
         for file_name in file_names:
             assert Path(os.path.join(root, file_name)).read_bytes() == b'test text1'
-            preparements.delete_file(Path(os.path.join(root, file_name)))
-    preparements.delete_dirtree(dst_dir)
